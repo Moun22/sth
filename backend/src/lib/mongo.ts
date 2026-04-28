@@ -1,6 +1,6 @@
 import { MongoClient } from 'mongodb';
 import type { Db, Collection } from 'mongodb';
-import { env } from '../config/env.js';
+import { env } from '@/config/env.js';
 
 let client: MongoClient | null = null;
 let db: Db | null = null;
@@ -9,7 +9,6 @@ export async function getMongoDb(): Promise<Db> {
   if (db) return db;
   client = new MongoClient(env.mongoUrl);
   await client.connect();
-  // extract db name from URL or use 'sth' as default
   const dbName = env.mongoUrl.split('/').pop()?.split('?')[0] ?? 'sth';
   db = client.db(dbName);
   console.log('[mongo] connected to', dbName);
@@ -29,5 +28,4 @@ export async function closeMongo(): Promise<void> {
   }
 }
 
-// Named export for compatibility
 export const mongo = { getMongoDb, getOffersCollection, closeMongo };

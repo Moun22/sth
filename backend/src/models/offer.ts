@@ -4,7 +4,7 @@ export interface Leg {
   flightNum: string;
   dep: string;
   arr: string;
-  duration: number; // minutes
+  duration: number;
 }
 
 export interface Hotel {
@@ -18,7 +18,6 @@ export interface Activity {
   price: number;
 }
 
-/** Document MongoDB brut */
 export interface OfferDocument {
   _id: ObjectId;
   from: string;
@@ -33,7 +32,6 @@ export interface OfferDocument {
   activity: Activity | null;
 }
 
-/** Réponse liste (GET /offers) */
 export interface OfferSummary {
   id: string;
   provider: string;
@@ -44,7 +42,6 @@ export interface OfferSummary {
   activity: Activity | null;
 }
 
-/** Réponse détail (GET /offers/:id) */
 export interface OfferDetail extends OfferSummary {
   from: string;
   to: string;
@@ -81,4 +78,3 @@ export function toOfferDetail(doc: OfferDocument, relatedOffers: string[]): Offe
     relatedOffers,
   };
 }
-

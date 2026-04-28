@@ -1,15 +1,8 @@
-/**
- * Script de seed MongoDB
- * Lance : npx tsx src/scripts/seed-mongo.ts
- * Insère ≥ 30 offres variées avec index { from:1, to:1, price:1 } + texte.
- */
 import { MongoClient } from 'mongodb';
 import type { Collection } from 'mongodb';
-import type { Hotel, Activity, Leg, OfferDocument } from '../models/offer.js';
+import type { Hotel, Activity, Leg, OfferDocument } from '@/models/offer.js';
 
 const MONGO_URL = process.env.MONGO_URL ?? 'mongodb://localhost:27017/sth';
-
-// ─── Données de référence ─────────────────────────────────────────────────────
 
 const PROVIDERS = ['AirZen', 'SkyBridge', 'FlyNova', 'CloudJet', 'OrbitAir'];
 
@@ -51,8 +44,6 @@ const ACTIVITIES: Activity[] = [
   { title: 'Street art walk', price: 18 },
 ];
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function buildLeg(from: string, to: string, idx: number): Leg {
   return {
     flightNum: `STH${(100 + idx).toString().padStart(3, '0')}`,
@@ -69,13 +60,13 @@ function makeOffers(): Omit<OfferDocument, '_id'>[] {
   for (const route of ROUTES) {
     for (let variant = 0; variant < 3; variant++) {
       i++;
-      const provider   = PROVIDERS[(i + variant) % PROVIDERS.length];
-      const hotel      = i % 2 === 0 ? HOTELS[i % HOTELS.length] : null;
-      const activity   = i % 3 === 0 ? ACTIVITIES[i % ACTIVITIES.length] : null;
+      const provider = PROVIDERS[(i + variant) % PROVIDERS.length];
+      const hotel = i % 2 === 0 ? HOTELS[i % HOTELS.length] : null;
+      const activity = i % 3 === 0 ? ACTIVITIES[i % ACTIVITIES.length] : null;
       const departDate = new Date(`${route.depart}T08:00:00.000Z`);
       const returnDate = new Date(`${route.ret}T18:00:00.000Z`);
-      const extra      = variant * 40
-        + (hotel    ? hotel.price    * 0.10 : 0)
+      const extra = variant * 40
+        + (hotel ? hotel.price * 0.10 : 0)
         + (activity ? activity.price * 0.50 : 0);
 
       offers.push({
@@ -84,9 +75,9 @@ function makeOffers(): Omit<OfferDocument, '_id'>[] {
         departDate,
         returnDate,
         provider,
-        price:    Number((route.base + extra).toFixed(2)),
+        price: Number((route.base + extra).toFixed(2)),
         currency: 'EUR',
-        legs:     [buildLeg(route.from, route.to, i)],
+        legs: [buildLeg(route.from, route.to, i)],
         hotel,
         activity,
       });
@@ -96,23 +87,19 @@ function makeOffers(): Omit<OfferDocument, '_id'>[] {
   return offers;
 }
 
-// ─── Main ─────────────────────────────────────────────────────────────────────
-
 async function main(): Promise<void> {
   const client = new MongoClient(MONGO_URL);
   await client.connect();
 
   const dbName = MONGO_URL.split('/').pop()?.split('?')[0] ?? 'sth';
-  const db     = client.db(dbName);
+  const db = client.db(dbName);
   const col: Collection = db.collection('offers');
 
-  // Vider + reseed
   await col.deleteMany({});
   const docs = makeOffers();
   await col.insertMany(docs as OfferDocument[]);
   console.log(`Seeded ${docs.length} offers into ${dbName}.offers`);
 
-  // Créer les index
   await col.createIndex({ from: 1, to: 1, price: 1 }, { name: 'from_to_price' });
   await col.createIndex(
     { provider: 'text', 'hotel.name': 'text', 'activity.title': 'text' },
@@ -127,4 +114,3 @@ main().catch((err) => {
   console.error('Seed failed:', err);
   process.exit(1);
 });
-

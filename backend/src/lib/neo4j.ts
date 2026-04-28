@@ -1,4 +1,4 @@
-import type { OfferDocument } from '../models/offer.js';
+import type { OfferDocument } from '@/models/offer.js';
 
 /**
  * Hook Neo4j — à metre par Fatima.
