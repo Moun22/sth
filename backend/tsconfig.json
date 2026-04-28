@@ -9,6 +9,10 @@
     "types": ["node"],
     "outDir": "dist",
     "rootDir": "src",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
     "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true
   },
