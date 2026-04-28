@@ -43,6 +43,16 @@ services:
       timeout: 5s
       retries: 5
 
+  mongo-seed:
+    build: ./backend
+    command: ["node", "--import", "tsx/esm", "src/scripts/seed-mongo.ts"]
+    environment:
+      MONGO_URL: mongodb://mongo:27017/sth
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: "no"
+
   neo4j:
     image: neo4j:5
     ports:
