@@ -3,9 +3,10 @@ import { HTTPException } from 'hono/http-exception';
 import { ObjectId } from 'mongodb';
 import type { Sort } from 'mongodb';
 import { getOffersCollection } from '@/lib/mongo.js';
-import { getCachedSearch, setCachedSearch, getCachedOffer, setCachedOffer } from '@/lib/redis.js';
+import { cacheGet, cacheSet } from '@/lib/cache.js';
+import { getCachedOffer, setCachedOffer } from '@/lib/redis.js';
 import { toOfferSummary, toOfferDetail } from '@/models/offer.js';
-import type { OfferDocument } from '@/models/offer.js';
+import type { OfferDocument, OfferSummary } from '@/models/offer.js';
 
 export const offers = new Hono();
 
@@ -27,11 +28,12 @@ offers.get('/', async (c) => {
 
   const limit = rawLimit ? Math.min(50, Math.max(1, parseInt(rawLimit, 10) || 10)) : 10;
 
-  const cached = rawQ ? null : await getCachedSearch(from, to);
+  const cacheKey = `offers:${from}:${to}`;
+  const cached = rawQ ? null : await cacheGet<OfferSummary[]>(cacheKey);
   if (cached) {
     c.header('X-Cache', 'HIT');
     c.header('Content-Type', 'application/json; charset=utf-8');
-    return c.json((JSON.parse(cached) as unknown[]).slice(0, limit));
+    return c.json(cached.slice(0, limit));
   }
 
   const col = await getOffersCollection();
@@ -44,7 +46,7 @@ offers.get('/', async (c) => {
   const docs = (await col.find(filter, projection ? { projection } : {}).sort(sort).limit(50).toArray()) as OfferDocument[];
   const summaries = docs.map(toOfferSummary);
 
-  if (!rawQ) await setCachedSearch(from, to, summaries).catch(() => {});
+  if (!rawQ) await cacheSet(cacheKey, summaries, 60, { compress: true }).catch(() => {});
 
   c.header('X-Cache', 'MISS');
   c.header('Content-Type', 'application/json; charset=utf-8');

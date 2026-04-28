@@ -3,7 +3,6 @@ import { env } from '@/config/env.js';
 
 let redisClient: RedisClientType | null = null;
 
-const TTL_SEARCH = 60;
 const TTL_DETAIL = 300;
 
 export function getRedis(): RedisClientType {
@@ -21,14 +20,6 @@ export async function connectRedis(): Promise<void> {
     await client.connect();
     console.log(`[redis] connected on ${env.redisUrl}`);
   }
-}
-
-export async function getCachedSearch(from: string, to: string): Promise<string | null> {
-  return getRedis().get(`offers:${from}:${to}`);
-}
-
-export async function setCachedSearch(from: string, to: string, data: unknown): Promise<void> {
-  await getRedis().setEx(`offers:${from}:${to}`, TTL_SEARCH, JSON.stringify(data));
 }
 
 export async function getCachedOffer(id: string): Promise<string | null> {
