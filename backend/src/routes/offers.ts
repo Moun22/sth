@@ -1,14 +1,59 @@
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
+import { zValidator } from '@hono/zod-validator';
 import { ObjectId } from 'mongodb';
 import type { Sort } from 'mongodb';
+import { z } from 'zod';
 import { getOffersCollection } from '@/lib/mongo.js';
 import { cacheGet, cacheSet } from '@/lib/cache.js';
+import { publishNewOffer } from '@/lib/pubsub.js';
 import { getCachedOffer, setCachedOffer } from '@/lib/redis.js';
 import { toOfferSummary, toOfferDetail } from '@/models/offer.js';
 import type { OfferDocument, OfferSummary } from '@/models/offer.js';
 
 export const offers = new Hono();
+
+const cityCode = z.string().regex(/^[A-Z]{3}$/, 'must be a 3-letter uppercase code');
+
+const createOfferSchema = z
+  .object({
+    from: cityCode,
+    to: cityCode,
+    departDate: z.coerce.date(),
+    returnDate: z.coerce.date(),
+    provider: z.string().min(1),
+    price: z.number().positive(),
+    currency: z.string().length(3),
+    legs: z
+      .array(
+        z.object({
+          flightNum: z.string().min(1),
+          dep: z.string().min(1),
+          arr: z.string().min(1),
+          duration: z.number().int().positive(),
+        }),
+      )
+      .min(1),
+    hotel: z
+      .object({
+        name: z.string().min(1),
+        nights: z.number().int().positive(),
+        price: z.number().positive(),
+      })
+      .nullable()
+      .optional(),
+    activity: z
+      .object({
+        title: z.string().min(1),
+        price: z.number().positive(),
+      })
+      .nullable()
+      .optional(),
+  })
+  .refine((d) => d.returnDate >= d.departDate, {
+    message: 'returnDate must be on or after departDate',
+    path: ['returnDate'],
+  });
 
 offers.get('/', async (c) => {
   const rawFrom = c.req.query('from');
@@ -52,6 +97,45 @@ offers.get('/', async (c) => {
   c.header('Content-Type', 'application/json; charset=utf-8');
   return c.json(summaries.slice(0, limit));
 });
+
+offers.post(
+  '/',
+  zValidator('json', createOfferSchema, (result, c) => {
+    if (!result.success) {
+      const issues = result.error.issues.map((i) => ({
+        path: i.path.join('.') || '<root>',
+        message: i.message,
+      }));
+      return c.json({ error: 'Validation failed', issues }, 400);
+    }
+  }),
+  async (c) => {
+    const body = c.req.valid('json');
+    const doc = {
+      from: body.from,
+      to: body.to,
+      departDate: body.departDate,
+      returnDate: body.returnDate,
+      provider: body.provider,
+      price: body.price,
+      currency: body.currency,
+      legs: body.legs,
+      hotel: body.hotel ?? null,
+      activity: body.activity ?? null,
+    };
+
+    const col = await getOffersCollection();
+    const { insertedId } = await col.insertOne(doc);
+
+    const inserted: OfferDocument = { _id: insertedId, ...doc };
+    const offerId = insertedId.toHexString();
+
+    await publishNewOffer({ offerId, from: doc.from, to: doc.to });
+
+    c.header('Content-Type', 'application/json; charset=utf-8');
+    return c.json(toOfferDetail(inserted, []), 201);
+  },
+);
 
 offers.get('/:id', async (c) => {
   const id = c.req.param('id');
