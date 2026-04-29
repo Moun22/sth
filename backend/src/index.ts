@@ -8,6 +8,7 @@ import { health } from '@/routes/health.js';
 import { login } from '@/routes/login.js';
 import { offers } from '@/routes/offers.js';
 import { reco } from '@/routes/reco.js';
+import { stats } from '@/routes/stats.js';
 
 const app = new Hono();
 
@@ -18,6 +19,7 @@ app.route('/health', health);
 app.route('/login', login);
 app.route('/offers', offers);
 app.route('/reco', reco);
+app.route('/stats', stats);
 
 await connectRedis();
 
