@@ -4,8 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "prepare": "panda codegen --silent || true",
+    "dev": "panda codegen --silent && vite",
+    "build": "panda codegen --silent && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
