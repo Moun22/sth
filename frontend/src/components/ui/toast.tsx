@@ -47,13 +47,13 @@ export const toaster = createToaster({
 export const Toaster = () => {
   return (
     <Portal>
-      <StyledToaster toaster={toaster} insetInline={{ mdDown: '4' }}>
+      <StyledToaster toaster={toaster} insetInline="4" width="420px" maxWidth="calc(100vw - 32px)">
         {(toast) => (
           <Root>
             {toast.type === 'loading' ? <Spinner color="colorPalette.plain.fg" /> : <Indicator />}
 
-            <Stack gap="3" alignItems="start">
-              <Stack gap="1">
+            <Stack gap="3" alignItems="start" flex="1" minWidth="0">
+              <Stack gap="1" width="full">
                 {toast.title && <Title>{toast.title}</Title>}
                 {toast.description && <Description>{toast.description}</Description>}
               </Stack>

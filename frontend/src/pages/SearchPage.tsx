@@ -1,9 +1,9 @@
-import { Plane, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { useState } from 'react'
-import { Box, Flex, Grid, HStack, Stack, styled } from 'styled-system/jsx'
+import { Box, Flex, Grid, Stack, styled } from 'styled-system/jsx'
 import { ApiMeta } from '~/components/ApiMeta'
+import { OfferCard } from '~/components/OfferCard'
 import { PageHeader } from '~/components/PageHeader'
-import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 import { Card } from '~/components/ui'
 import { Field } from '~/components/ui'
@@ -136,96 +136,3 @@ export function SearchPage({ onPickOffer }: Props) {
   )
 }
 
-function OfferCard({
-  offer,
-  from,
-  to,
-  onClick,
-}: {
-  offer: OfferSummary
-  from: string
-  to: string
-  onClick: () => void
-}) {
-  const leg = offer.legs[0]
-  return (
-    <Card.Root>
-      <Card.Body p="5">
-        <Flex justify="space-between" align="flex-start">
-          <Stack gap="0.5">
-            <styled.div fontSize="xs" color="fg.muted" textTransform="uppercase" letterSpacing="wider">
-              Provider
-            </styled.div>
-            <styled.div fontSize="lg" fontWeight="semibold">{offer.provider}</styled.div>
-          </Stack>
-          <styled.div fontSize="2xl" fontWeight="bold" color="colorPalette.text">
-            {offer.price} {offer.currency === 'EUR' ? '€' : offer.currency}
-          </styled.div>
-        </Flex>
-
-        <HStack mt="4" justify="space-between" alignItems="center" bg="bg.subtle" p="3" borderRadius="md">
-          <styled.div fontSize="sm" fontWeight="medium">{from}</styled.div>
-          <Flex direction="column" align="center" flex="1" mx="3">
-            <styled.div fontSize="xs" color="fg.muted">{leg.duration} min</styled.div>
-            <Box position="relative" width="100%" height="2px" bg="border.default" my="1">
-              <Plane
-                size={14}
-                style={{
-                  position: 'absolute',
-                  left: '50%',
-                  top: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  background: 'white',
-                  padding: '0 4px',
-                }}
-              />
-            </Box>
-            <styled.div fontSize="xs" fontFamily="mono" color="fg.muted">{leg.flightNum}</styled.div>
-          </Flex>
-          <styled.div fontSize="sm" fontWeight="medium">{to}</styled.div>
-        </HStack>
-
-        {(offer.hotel || offer.activity) && (
-          <Stack gap="2" mt="3">
-            {offer.hotel && (
-              <HStack
-                p="2"
-                px="3"
-                bg="bg.subtle"
-                borderRadius="sm"
-                fontSize="xs"
-                gap="2"
-              >
-                <Badge size="sm" variant="outline">🏨</Badge>
-                <styled.span flex="1">
-                  {offer.hotel.name} · {offer.hotel.nights} nuits
-                </styled.span>
-                <styled.span fontWeight="medium">{offer.hotel.price} €</styled.span>
-              </HStack>
-            )}
-            {offer.activity && (
-              <HStack
-                p="2"
-                px="3"
-                bg="bg.subtle"
-                borderRadius="sm"
-                fontSize="xs"
-                gap="2"
-              >
-                <Badge size="sm" variant="outline">🎟</Badge>
-                <styled.span flex="1">{offer.activity.title}</styled.span>
-                <styled.span fontWeight="medium">{offer.activity.price} €</styled.span>
-              </HStack>
-            )}
-          </Stack>
-        )}
-
-        <Flex justify="flex-end" mt="4">
-          <Button size="sm" variant="ghost" onClick={onClick}>
-            Détails →
-          </Button>
-        </Flex>
-      </Card.Body>
-    </Card.Root>
-  )
-}

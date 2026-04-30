@@ -16,11 +16,11 @@ export function TechBadge({ tech, suffix }: Props) {
   const m = META[tech]
   return (
     <HStack
-      gap="1.5"
-      px="2"
-      py="0.5"
-      borderRadius="sm"
-      fontSize="2xs"
+      gap="2"
+      px="2.5"
+      py="1"
+      borderRadius="md"
+      fontSize="sm"
       fontWeight="medium"
       bg={`${m.palette}.a3`}
       color={`${m.palette}.text`}
@@ -28,14 +28,18 @@ export function TechBadge({ tech, suffix }: Props) {
       borderColor={`${m.palette}.a6`}
     >
       <styled.span
-        w="6px"
-        h="6px"
+        w="8px"
+        h="8px"
         borderRadius="full"
         bg={`${m.palette}.default`}
       />
       <styled.span>
         {m.label}
-        {suffix && <styled.span color="fg.muted" ml="1">· {suffix}</styled.span>}
+        {suffix && (
+          <styled.span color="fg.muted" ml="1.5" style={{ fontFamily: 'var(--sth-font-mono)', fontSize: '12px' }}>
+            · {suffix}
+          </styled.span>
+        )}
       </styled.span>
     </HStack>
   )

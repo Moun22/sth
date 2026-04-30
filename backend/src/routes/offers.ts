@@ -6,6 +6,7 @@ import type { Sort } from 'mongodb';
 import { z } from 'zod';
 import { getOffersCollection } from '@/lib/mongo.js';
 import { cacheGet, cacheSet } from '@/lib/cache.js';
+import { registerOfferNode } from '@/lib/neo4j.js';
 import { publishNewOffer } from '@/lib/pubsub.js';
 import { getCachedOffer, setCachedOffer } from '@/lib/redis.js';
 import { toOfferSummary, toOfferDetail } from '@/models/offer.js';
@@ -131,6 +132,7 @@ offers.post(
 
     const inserted: OfferDocument = { _id: insertedId, ...doc };
 
+    await registerOfferNode(id, doc.from);
     await publishNewOffer({ offerId: id, from: doc.from, to: doc.to });
 
     c.header('Content-Type', 'application/json; charset=utf-8');

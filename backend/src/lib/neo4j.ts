@@ -40,6 +40,25 @@ export async function getRecommendations(
   }
 }
 
+export async function registerOfferNode(id: string, fromCity: string): Promise<void> {
+  const session = neo4j.session()
+  try {
+    await session.run(
+      `
+      MERGE (c:City {code:$from})
+      ON CREATE SET c.name = $from, c.country = 'XX'
+      MERGE (o:Offer {id:$id})
+      MERGE (o)-[:IN]->(c)
+      `,
+      { id, from: fromCity },
+    )
+  } catch (err) {
+    console.error('Neo4j registerOfferNode error', err)
+  } finally {
+    await session.close()
+  }
+}
+
 export async function getRelatedOffers(
   offer: Pick<OfferDocument, 'id'>,
   limit: number,

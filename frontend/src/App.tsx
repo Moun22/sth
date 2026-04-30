@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Box, Flex } from 'styled-system/jsx'
 import { Sidebar, type SectionId } from '~/components/Sidebar'
 import { TopBar } from '~/components/TopBar'
@@ -13,6 +13,18 @@ import { MetricsPage } from '~/pages/MetricsPage'
 import { RecoPage } from '~/pages/RecoPage'
 import { SearchPage } from '~/pages/SearchPage'
 import { StatsPage } from '~/pages/StatsPage'
+
+const SECTION_LABELS: Record<SectionId, string> = {
+  search: "Recherche d'offres",
+  detail: 'Détail offre',
+  create: 'Créer une offre',
+  reco: 'Recommandations',
+  stats: 'Top destinations',
+  events: 'Événements live',
+  login: 'Authentification',
+  metrics: 'Métriques',
+  admin: 'Administration',
+}
 
 export function App() {
   const [section, setSection] = useState<SectionId>('search')
@@ -58,13 +70,20 @@ export function App() {
     setSection('detail')
   }
 
+  const activeLabel = useMemo(() => SECTION_LABELS[section], [section])
+
   return (
-    <Flex height="100%" bg="bg.canvas">
+    <Flex height="100%" style={{ background: 'var(--sth-bg)' }}>
       <Sidebar active={section} onSelect={(id) => setSection(id)} />
       <Flex direction="column" flex="1" minWidth="0">
-        <TopBar apiUp={apiUp} seeding={seeding} onSeed={handleSeed} />
-        <Box flex="1" overflow="auto" p="8">
-          <Box maxWidth="1200px" mx="auto">
+        <TopBar
+          apiUp={apiUp}
+          seeding={seeding}
+          onSeed={handleSeed}
+          activeLabel={activeLabel}
+        />
+        <Box flex="1" overflow="auto" p="6">
+          <Box maxWidth="1100px" mx="auto">
             {section === 'search' && <SearchPage onPickOffer={pickOffer} />}
             {section === 'detail' && (
               <DetailPage initialId={pickedOfferId} onPickOffer={pickOffer} />

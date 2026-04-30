@@ -81,7 +81,7 @@ export function MetricsPage() {
             <Box
               as="pre"
               p="4"
-              fontSize="2xs"
+              fontSize="sm"
               fontFamily="mono"
               color="fg.muted"
               overflow="auto"

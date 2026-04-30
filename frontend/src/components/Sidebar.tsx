@@ -23,7 +23,12 @@ export type SectionId =
   | 'metrics'
   | 'admin'
 
-type Item = { id: SectionId; label: string; icon: LucideIcon }
+type Item = {
+  id: SectionId
+  label: string
+  icon: LucideIcon
+  badge?: string | number
+}
 
 const ITEMS: Item[] = [
   { id: 'search', label: "Recherche d'offres", icon: Search },
@@ -48,71 +53,137 @@ export function Sidebar({ active, onSelect }: Props) {
       direction="column"
       width="240px"
       flexShrink="0"
-      bg="bg.default"
       borderRight="1px solid"
-      borderColor="border.default"
+      style={{
+        background: 'var(--sth-surface)',
+        borderColor: 'var(--sth-border)',
+      }}
       height="100%"
+      p="4"
+      gap="4"
     >
-      <Box p="5" borderBottom="1px solid" borderColor="border.default">
-        <styled.div fontSize="lg" fontWeight="bold" letterSpacing="tight">
+      <Box px="2" py="1">
+        <styled.div
+          fontSize="16px"
+          fontWeight="semibold"
+          style={{ color: 'var(--sth-ink-900)', letterSpacing: '-0.01em' }}
+        >
           Travel Hub
-        </styled.div>
-        <styled.div fontSize="xs" color="fg.muted" letterSpacing="widest" textTransform="uppercase" mt="1">
-          NoSQL Demo Console
         </styled.div>
       </Box>
 
-      <Stack gap="0.5" p="3" flex="1">
-        {ITEMS.map(({ id, label, icon: Icon }) => {
-          const isActive = active === id
-          return (
-            <styled.button
-              key={id}
-              onClick={() => onSelect(id)}
-              type="button"
-              display="flex"
-              alignItems="center"
-              gap="3"
-              px="3"
-              py="2.5"
-              borderRadius="md"
-              fontSize="sm"
-              fontWeight={isActive ? 'medium' : 'normal'}
-              color={isActive ? 'colorPalette.text' : 'fg.muted'}
-              bg={isActive ? 'colorPalette.a3' : 'transparent'}
-              borderLeft="3px solid"
-              borderLeftColor={isActive ? 'colorPalette.default' : 'transparent'}
-              cursor="pointer"
-              textAlign="left"
-              transition="all 120ms"
-              _hover={{ bg: isActive ? 'colorPalette.a3' : 'bg.muted' }}
-            >
-              <Icon size={16} />
-              <styled.span flex="1">{label}</styled.span>
-            </styled.button>
-          )
-        })}
-      </Stack>
-
-      <HStack p="4" borderTop="1px solid" borderColor="border.default" gap="3">
-        <Box
-          width="32px"
-          height="32px"
-          borderRadius="full"
-          bg="colorPalette.default"
-          color="colorPalette.fg"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-          fontSize="xs"
-          fontWeight="bold"
+      <Box>
+        <styled.div
+          fontSize="10px"
+          fontWeight="medium"
+          textTransform="uppercase"
+          mb="1"
+          px="2.5"
+          style={{
+            letterSpacing: '0.08em',
+            color: 'var(--sth-ink-400)',
+          }}
         >
-          u4
-        </Box>
-        <Stack gap="0">
-          <styled.div fontSize="sm" fontWeight="medium">u42 Admin</styled.div>
-          <styled.div fontSize="xs" color="fg.muted">demo@sth.local</styled.div>
+          Fonctionnalités
+        </styled.div>
+        <Stack gap="0.5">
+          {ITEMS.map(({ id, label, icon: Icon, badge }) => {
+            const isActive = active === id
+            return (
+              <styled.button
+                key={id}
+                onClick={() => onSelect(id)}
+                type="button"
+                position="relative"
+                display="flex"
+                alignItems="center"
+                gap="2.5"
+                pl="3.5"
+                pr="2.5"
+                py="2"
+                borderRadius="md"
+                fontSize="13px"
+                border="0"
+                textAlign="left"
+                width="100%"
+                cursor="pointer"
+                style={{
+                  background: isActive ? 'var(--sth-amber-tint)' : 'transparent',
+                  color: isActive ? 'var(--sth-amber-ink)' : 'var(--sth-ink-700)',
+                  fontWeight: isActive ? 500 : 400,
+                  transition: 'background 120ms, color 120ms',
+                }}
+                _hover={
+                  isActive
+                    ? undefined
+                    : { background: 'var(--sth-surface-2) !important', color: 'var(--sth-ink-900) !important' }
+                }
+              >
+                {isActive && (
+                  <Box
+                    position="absolute"
+                    style={{
+                      left: '4px',
+                      top: '8px',
+                      bottom: '8px',
+                      width: '3px',
+                      borderRadius: '2px',
+                      background: 'var(--sth-amber)',
+                    }}
+                  />
+                )}
+                <Icon
+                  size={16}
+                  style={{
+                    color: isActive ? 'var(--sth-amber-strong)' : 'var(--sth-ink-400)',
+                    flexShrink: 0,
+                  }}
+                />
+                <styled.span flex="1">{label}</styled.span>
+                {badge !== undefined && (
+                  <styled.span
+                    fontSize="10px"
+                    px="1.5"
+                    borderRadius="full"
+                    style={{
+                      fontFamily: 'var(--sth-font-mono)',
+                      color: isActive ? 'var(--sth-amber-ink)' : 'var(--sth-ink-400)',
+                      background: isActive ? 'white' : 'var(--sth-surface-2)',
+                      border: '1px solid',
+                      borderColor: isActive ? 'var(--sth-amber)' : 'var(--sth-border)',
+                    }}
+                  >
+                    {badge}
+                  </styled.span>
+                )}
+              </styled.button>
+            )
+          })}
         </Stack>
+      </Box>
+
+      <HStack
+        mt="auto"
+        p="2.5"
+        borderTop="1px solid"
+        gap="2.5"
+        style={{
+          borderColor: 'var(--sth-border)',
+          color: 'var(--sth-ink-500)',
+          fontSize: '11px',
+          fontFamily: 'var(--sth-font-mono)',
+        }}
+      >
+        <Box
+          style={{
+            width: '7px',
+            height: '7px',
+            borderRadius: '50%',
+            background: 'var(--sth-green)',
+            boxShadow: '0 0 0 3px var(--sth-green-tint)',
+          }}
+        />
+        Redis · Mongo · Neo4j
       </HStack>
     </Flex>
   )
