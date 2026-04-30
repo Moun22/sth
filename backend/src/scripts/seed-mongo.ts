@@ -1,8 +1,6 @@
-import { MongoClient } from 'mongodb';
 import type { Collection } from 'mongodb';
+import { getMongoDb } from '@/lib/mongo.js';
 import type { Hotel, Activity, Leg, OfferDocument } from '@/models/offer.js';
-
-const MONGO_URL = process.env.MONGO_URL ?? 'mongodb://localhost:27017/sth';
 
 const PROVIDERS = ['AirZen', 'SkyBridge', 'FlyNova', 'CloudJet', 'OrbitAir'];
 
@@ -88,31 +86,35 @@ function makeOffers(): Omit<OfferDocument, '_id'>[] {
   return offers;
 }
 
-async function main(): Promise<void> {
-  const client = new MongoClient(MONGO_URL);
-  await client.connect();
-
-  const dbName = MONGO_URL.split('/').pop()?.split('?')[0] ?? 'sth';
-  const db = client.db(dbName);
+export async function seedMongo(): Promise<{ inserted: number; indexes: string[] }> {
+  const db = await getMongoDb();
   const col: Collection = db.collection('offers');
 
   await col.deleteMany({});
   const docs = makeOffers();
   await col.insertMany(docs as OfferDocument[]);
-  console.log(`Seeded ${docs.length} offers into ${dbName}.offers`);
 
-  await col.createIndex({ id: 1 }, { name: 'id_unique', unique: true });
-  await col.createIndex({ from: 1, to: 1, price: 1 }, { name: 'from_to_price' });
+  const indexNames = ['id_unique', 'from_to_price', 'text_search'];
+  await col.createIndex({ id: 1 }, { name: indexNames[0], unique: true });
+  await col.createIndex({ from: 1, to: 1, price: 1 }, { name: indexNames[1] });
   await col.createIndex(
     { provider: 'text', 'hotel.name': 'text', 'activity.title': 'text' },
-    { name: 'text_search' },
+    { name: indexNames[2] },
   );
-  console.log('Indexes created: id_unique, from_to_price, text_search');
 
-  await client.close();
+  return { inserted: docs.length, indexes: indexNames };
 }
 
-main().catch((err) => {
-  console.error('Seed failed:', err);
-  process.exit(1);
-});
+const isMain = import.meta.url === `file://${process.argv[1]}`;
+if (isMain) {
+  seedMongo()
+    .then(({ inserted, indexes }) => {
+      console.log(`Seeded ${inserted} offers into sth.offers`);
+      console.log(`Indexes created: ${indexes.join(', ')}`);
+      process.exit(0);
+    })
+    .catch((err) => {
+      console.error('Seed failed:', err);
+      process.exit(1);
+    });
+}
