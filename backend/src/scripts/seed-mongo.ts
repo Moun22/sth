@@ -70,6 +70,7 @@ function makeOffers(): Omit<OfferDocument, '_id'>[] {
         + (activity ? activity.price * 0.50 : 0);
 
       offers.push({
+        id: `offer-${String(i).padStart(3, '0')}`,
         from: route.from,
         to: route.to,
         departDate,
@@ -100,12 +101,13 @@ async function main(): Promise<void> {
   await col.insertMany(docs as OfferDocument[]);
   console.log(`Seeded ${docs.length} offers into ${dbName}.offers`);
 
+  await col.createIndex({ id: 1 }, { name: 'id_unique', unique: true });
   await col.createIndex({ from: 1, to: 1, price: 1 }, { name: 'from_to_price' });
   await col.createIndex(
     { provider: 'text', 'hotel.name': 'text', 'activity.title': 'text' },
     { name: 'text_search' },
   );
-  console.log('Indexes created: from_to_price, text_search');
+  console.log('Indexes created: id_unique, from_to_price, text_search');
 
   await client.close();
 }

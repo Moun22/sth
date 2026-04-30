@@ -20,6 +20,7 @@ export interface Activity {
 
 export interface OfferDocument {
   _id: ObjectId;
+  id: string;
   from: string;
   to: string;
   departDate: Date;
@@ -52,7 +53,7 @@ export interface OfferDetail extends OfferSummary {
 
 export function toOfferSummary(doc: OfferDocument): OfferSummary {
   return {
-    id: doc._id.toHexString(),
+    id: doc.id,
     provider: doc.provider,
     price: doc.price,
     currency: doc.currency,
@@ -64,7 +65,7 @@ export function toOfferSummary(doc: OfferDocument): OfferSummary {
 
 export function toOfferDetail(doc: OfferDocument, relatedOffers: string[]): OfferDetail {
   return {
-    id: doc._id.toHexString(),
+    id: doc.id,
     from: doc.from,
     to: doc.to,
     departDate: doc.departDate.toISOString(),
