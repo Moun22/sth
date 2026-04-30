@@ -1,8 +1,4 @@
-import neo4jDriver from 'neo4j-driver'
-
-const NEO4J_URL = process.env.NEO4J_URL ?? 'bolt://localhost:7687'
-const NEO4J_USER = process.env.NEO4J_USER ?? 'neo4j'
-const NEO4J_PASSWORD = process.env.NEO4J_PASSWORD ?? 'sthpassword'
+import { neo4j } from '@/lib/neo4j.js'
 
 const CITIES = [
   { code: 'PAR', name: 'Paris', country: 'FR' },
@@ -82,13 +78,12 @@ const ROUTES = [
   { from: 'BCN', to: 'NYC' },
 ] as const
 
-async function main(): Promise<void> {
-  const driver = neo4jDriver.driver(
-    NEO4J_URL,
-    neo4jDriver.auth.basic(NEO4J_USER, NEO4J_PASSWORD),
-  )
-  const session = driver.session()
-
+export async function seedNeo4j(): Promise<{
+  cities: number
+  nearEdges: number
+  offers: number
+}> {
+  const session = neo4j.session()
   try {
     await session.run('MATCH (n) DETACH DELETE n')
 
@@ -131,16 +126,27 @@ async function main(): Promise<void> {
       'CREATE CONSTRAINT offer_id_unique IF NOT EXISTS FOR (o:Offer) REQUIRE o.id IS UNIQUE',
     )
 
-    console.log(
-      `Neo4j seeded: ${CITIES.length} cities, ${NEAR_PAIRS.length * 2} NEAR edges, ${offers.length} offers`,
-    )
+    return {
+      cities: CITIES.length,
+      nearEdges: NEAR_PAIRS.length * 2,
+      offers: offers.length,
+    }
   } finally {
     await session.close()
-    await driver.close()
   }
 }
 
-main().catch((err) => {
-  console.error('Seed failed:', err)
-  process.exit(1)
-})
+const isMain = import.meta.url === `file://${process.argv[1]}`
+if (isMain) {
+  seedNeo4j()
+    .then(async ({ cities, nearEdges, offers }) => {
+      console.log(`Neo4j seeded: ${cities} cities, ${nearEdges} NEAR edges, ${offers} offers`)
+      await neo4j.close()
+      process.exit(0)
+    })
+    .catch(async (err) => {
+      console.error('Seed failed:', err)
+      await neo4j.close()
+      process.exit(1)
+    })
+}
