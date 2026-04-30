@@ -19,7 +19,7 @@ import { stats } from '@/routes/stats.js';
 const app = new Hono();
 
 app.use('*', logger());
-app.use('*', cors({ origin: '*' }));
+app.use('*', cors({ origin: '*', exposeHeaders: ['X-Cache'] }));
 app.use('*', metricsMiddleware);
 app.onError(errors);
 

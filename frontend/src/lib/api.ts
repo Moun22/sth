@@ -67,7 +67,11 @@ export type OfferDetail = OfferSummary & {
 }
 export type RecoEntry = { city: string; score: number }
 export type StatEntry = { to: string; count: number }
-export type SeedResult = { inserted: number; indexes: string[] }
+export type SeedResult = {
+  redis: { flushed: boolean }
+  mongo: { inserted: number; indexes: string[] }
+  neo4j: { cities: number; nearEdges: number; offers: number }
+}
 export type CreateOfferInput = {
   from: string
   to: string

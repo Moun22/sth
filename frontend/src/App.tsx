@@ -40,13 +40,13 @@ export function App() {
     setSeeding(false)
     if (r.ok && r.data) {
       toaster.create({
-        title: 'Seed terminé',
-        description: `${r.data.inserted} offres insérées`,
+        title: 'Reset terminé',
+        description: `Redis flushé · ${r.data.mongo.inserted} offres Mongo · ${r.data.neo4j.cities} villes Neo4j`,
         type: 'success',
       })
     } else {
       toaster.create({
-        title: 'Seed échoué',
+        title: 'Reset échoué',
         description: r.error?.error ?? 'Erreur',
         type: 'error',
       })

@@ -23,27 +23,18 @@ export type SectionId =
   | 'metrics'
   | 'admin'
 
-type TechDot = 'redis' | 'mongo' | 'neo4j' | 'prom'
-
-type Item = { id: SectionId; label: string; icon: LucideIcon; techs: TechDot[] }
-
-const TECH_COLOR: Record<TechDot, string> = {
-  redis: 'red.default',
-  mongo: 'green.default',
-  neo4j: 'blue.default',
-  prom: 'orange.default',
-}
+type Item = { id: SectionId; label: string; icon: LucideIcon }
 
 const ITEMS: Item[] = [
-  { id: 'search', label: "Recherche d'offres", icon: Search, techs: ['mongo', 'redis'] },
-  { id: 'detail', label: 'Détail offre', icon: FileText, techs: ['mongo', 'redis', 'neo4j'] },
-  { id: 'create', label: 'Créer une offre', icon: Plus, techs: ['mongo', 'redis'] },
-  { id: 'reco', label: 'Recommandations', icon: Sparkles, techs: ['neo4j'] },
-  { id: 'stats', label: 'Top destinations', icon: BarChart3, techs: ['mongo', 'redis'] },
-  { id: 'events', label: 'Événements live', icon: Activity, techs: ['redis', 'mongo'] },
-  { id: 'login', label: 'Authentification', icon: Key, techs: ['redis'] },
-  { id: 'metrics', label: 'Métriques', icon: Gauge, techs: ['prom'] },
-  { id: 'admin', label: 'Administration', icon: Database, techs: ['mongo'] },
+  { id: 'search', label: "Recherche d'offres", icon: Search },
+  { id: 'detail', label: 'Détail offre', icon: FileText },
+  { id: 'create', label: 'Créer une offre', icon: Plus },
+  { id: 'reco', label: 'Recommandations', icon: Sparkles },
+  { id: 'stats', label: 'Top destinations', icon: BarChart3 },
+  { id: 'events', label: 'Événements live', icon: Activity },
+  { id: 'login', label: 'Authentification', icon: Key },
+  { id: 'metrics', label: 'Métriques', icon: Gauge },
+  { id: 'admin', label: 'Administration', icon: Database },
 ]
 
 type Props = {
@@ -64,15 +55,15 @@ export function Sidebar({ active, onSelect }: Props) {
     >
       <Box p="5" borderBottom="1px solid" borderColor="border.default">
         <styled.div fontSize="lg" fontWeight="bold" letterSpacing="tight">
-          STH
+          Travel Hub
         </styled.div>
         <styled.div fontSize="xs" color="fg.muted" letterSpacing="widest" textTransform="uppercase" mt="1">
-          Travel Hub Console
+          NoSQL Demo Console
         </styled.div>
       </Box>
 
       <Stack gap="0.5" p="3" flex="1">
-        {ITEMS.map(({ id, label, icon: Icon, techs }) => {
+        {ITEMS.map(({ id, label, icon: Icon }) => {
           const isActive = active === id
           return (
             <styled.button
@@ -98,31 +89,9 @@ export function Sidebar({ active, onSelect }: Props) {
             >
               <Icon size={16} />
               <styled.span flex="1">{label}</styled.span>
-              <HStack gap="1">
-                {techs.map((t) => (
-                  <Box
-                    key={t}
-                    w="6px"
-                    h="6px"
-                    borderRadius="full"
-                    bg={TECH_COLOR[t]}
-                  />
-                ))}
-              </HStack>
             </styled.button>
           )
         })}
-      </Stack>
-
-      <Stack p="3" gap="1.5" borderTop="1px solid" borderColor="border.default">
-        <styled.div fontSize="2xs" color="fg.muted" textTransform="uppercase" letterSpacing="wider" px="2">
-          Stack
-        </styled.div>
-        <HStack gap="3" px="2" fontSize="xs" color="fg.muted" flexWrap="wrap">
-          <HStack gap="1.5"><Box w="6px" h="6px" borderRadius="full" bg="red.default" /> Redis</HStack>
-          <HStack gap="1.5"><Box w="6px" h="6px" borderRadius="full" bg="green.default" /> Mongo</HStack>
-          <HStack gap="1.5"><Box w="6px" h="6px" borderRadius="full" bg="blue.default" /> Neo4j</HStack>
-        </HStack>
       </Stack>
 
       <HStack p="4" borderTop="1px solid" borderColor="border.default" gap="3">

@@ -51,7 +51,7 @@ export function TopBar({ apiUp, seeding, onSeed }: Props) {
           loading={seeding}
         >
           <RefreshCw size={14} />
-          Re-seed MongoDB
+          Reset démo
         </Button>
 
         <Box
