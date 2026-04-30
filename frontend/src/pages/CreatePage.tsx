@@ -7,7 +7,6 @@ import { Button } from '~/components/ui/button'
 import { Card } from '~/components/ui'
 import { Field } from '~/components/ui'
 import { Input } from '~/components/ui/input'
-import { toaster } from '~/components/ui/toast'
 import { api, type ApiResponse, type CreateOfferInput, type OfferDetail } from '~/lib/api'
 import { RawJson } from '~/components/RawJson'
 
@@ -51,13 +50,6 @@ export function CreatePage() {
     const r = await api.createOffer(body)
     setResult(r)
     setLoading(false)
-    if (r.ok) {
-      toaster.create({
-        title: 'Offre publiée',
-        description: `${body.from} → ${body.to} · ${body.price} ${body.currency}`,
-        type: 'success',
-      })
-    }
   }
 
   return (

@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { Box, Flex } from 'styled-system/jsx'
 import { Sidebar, type SectionId } from '~/components/Sidebar'
 import { TopBar } from '~/components/TopBar'
-import { toaster } from '~/components/ui/toast'
 import { api } from '~/lib/api'
 import { AdminPage } from '~/pages/AdminPage'
 import { CreatePage } from '~/pages/CreatePage'
@@ -48,21 +47,8 @@ export function App() {
 
   async function handleSeed() {
     setSeeding(true)
-    const r = await api.seedMongo()
+    await api.seedMongo()
     setSeeding(false)
-    if (r.ok && r.data) {
-      toaster.create({
-        title: 'Reset terminé',
-        description: `Redis flushé · ${r.data.mongo.inserted} offres Mongo · ${r.data.neo4j.cities} villes Neo4j`,
-        type: 'success',
-      })
-    } else {
-      toaster.create({
-        title: 'Reset échoué',
-        description: r.error?.error ?? 'Erreur',
-        type: 'error',
-      })
-    }
   }
 
   function pickOffer(id: string) {

@@ -8,7 +8,6 @@ import { Button } from '~/components/ui/button'
 import { Card } from '~/components/ui'
 import { Field } from '~/components/ui'
 import { Input } from '~/components/ui/input'
-import { toaster } from '~/components/ui/toast'
 import {
   api,
   type ApiResponse,
@@ -82,19 +81,6 @@ export function EventsPage() {
     const r = await api.createOffer(body)
     setSubmitResult(r)
     setSubmitting(false)
-    if (r.ok) {
-      toaster.create({
-        title: 'Offre publiée',
-        description: `${body.from} → ${body.to} · ${body.price} ${body.currency}`,
-        type: 'success',
-      })
-    } else {
-      toaster.create({
-        title: 'Échec publication',
-        description: r.error?.error ?? 'Erreur',
-        type: 'error',
-      })
-    }
   }
 
   return (

@@ -5,7 +5,6 @@ import { ApiMeta } from '~/components/ApiMeta'
 import { PageHeader } from '~/components/PageHeader'
 import { Button } from '~/components/ui/button'
 import { Card } from '~/components/ui'
-import { toaster } from '~/components/ui/toast'
 import { api, type ApiResponse, type SeedResult } from '~/lib/api'
 
 export function AdminPage() {
@@ -17,13 +16,6 @@ export function AdminPage() {
     const r = await api.seedMongo()
     setResult(r)
     setLoading(false)
-    if (r.ok && r.data) {
-      toaster.create({
-        title: 'Reset terminé',
-        description: `Redis flushé · ${r.data.mongo.inserted} offres Mongo · ${r.data.neo4j.cities} villes Neo4j`,
-        type: 'success',
-      })
-    }
   }
 
   const data = result?.data
