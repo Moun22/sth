@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { zValidator } from '@hono/zod-validator';
-import { ObjectId } from 'mongodb';
+import { randomUUID } from 'node:crypto';
 import type { Sort } from 'mongodb';
 import { z } from 'zod';
 import { getOffersCollection } from '@/lib/mongo.js';
@@ -111,7 +111,9 @@ offers.post(
   }),
   async (c) => {
     const body = c.req.valid('json');
+    const id = `offer-${randomUUID()}`;
     const doc = {
+      id,
       from: body.from,
       to: body.to,
       departDate: body.departDate,
@@ -128,9 +130,8 @@ offers.post(
     const { insertedId } = await col.insertOne(doc);
 
     const inserted: OfferDocument = { _id: insertedId, ...doc };
-    const offerId = insertedId.toHexString();
 
-    await publishNewOffer({ offerId, from: doc.from, to: doc.to });
+    await publishNewOffer({ offerId: id, from: doc.from, to: doc.to });
 
     c.header('Content-Type', 'application/json; charset=utf-8');
     return c.json(toOfferDetail(inserted, []), 201);
@@ -140,8 +141,8 @@ offers.post(
 offers.get('/:id', async (c) => {
   const id = c.req.param('id');
 
-  if (!ObjectId.isValid(id)) {
-    throw new HTTPException(400, { message: 'Offer id must be a valid MongoDB ObjectId.' });
+  if (!id || !/^[a-zA-Z0-9_-]+$/.test(id)) {
+    throw new HTTPException(400, { message: 'Offer id must be a non-empty alphanumeric string.' });
   }
 
   const cached = await getCachedOffer(id);
@@ -152,7 +153,7 @@ offers.get('/:id', async (c) => {
   }
 
   const col = await getOffersCollection();
-  const doc = (await col.findOne({ _id: new ObjectId(id) })) as OfferDocument | null;
+  const doc = (await col.findOne({ id })) as OfferDocument | null;
 
   if (!doc) throw new HTTPException(404, { message: 'Offer not found.' });
 
