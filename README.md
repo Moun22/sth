@@ -1,6 +1,6 @@
 # SupDeVinci Travel Hub (STH)
 
-Mini-projet NoSQL polyglotte : API HTTP/JSON, Redis, MongoDB et Neo4j.
+Mini-projet NoSQL polyglotte : API HTTP/JSON adossée à Redis, MongoDB et Neo4j, plus une console web de démo.
 
 ## Démarrer la stack
 
@@ -8,27 +8,22 @@ Mini-projet NoSQL polyglotte : API HTTP/JSON, Redis, MongoDB et Neo4j.
 docker compose up --build
 ```
 
-Une fois la stack levée :
+Une fois levée, depuis la console web tu peux tout tester (recherche, détail, recommandations, événements live, métriques, reset).
 
-- API Hono : http://localhost:3000
-- Health : http://localhost:3000/health
-- Redis : `redis://localhost:6379`
-- MongoDB : `mongodb://localhost:27017`
-- Neo4j : http://localhost:7474 (bolt sur 7687, user `neo4j` / pass `sthpassword`)
+| Service | URL |
+|---------|-----|
+| Console démo | http://localhost:5173 |
+| API | http://localhost:3000 |
+| Neo4j Browser | http://localhost:7474 (`neo4j` / `sthpassword`) |
+| MongoDB | `mongodb://localhost:27017` |
+| Redis | `redis://localhost:6379` |
 
-## Développement local du backend
+Les bases sont seedées automatiquement au boot. Pour reseter à n'importe quel moment, clique **Reset démo** en haut à droite de la console (ou `POST /admin/seed`).
 
-```bash
-cd backend
-cp .env.example .env
-npm install
-npm run dev
-```
-
-## Structure du repo
+## Structure
 
 ```
-backend/    code Node.js + Hono (API)
-frontend/   à venir (bonus, Stitch)
-docker-compose.yml   orchestre l'API + les 3 bases
+backend/    Node.js + Hono — API HTTP/JSON
+frontend/   Vite + React + Park UI — console de démo
+docker-compose.yml   orchestre api + frontend + redis + mongo + neo4j
 ```
